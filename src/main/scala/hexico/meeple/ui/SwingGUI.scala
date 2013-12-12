@@ -17,13 +17,15 @@ object SwingGUI extends SimpleSwingApplication {
 
     override def paintComponent(g: Graphics2D) {
       val (minX, maxX, minY, maxY) = board.extent
-      preferredSize = new Dimension((maxX - minX + 1) * TILE_SIZE + 1,
-                                    (maxY - minY + 1) * TILE_SIZE + 1)
+      val countX = maxX - minX + 1
+      val countY = maxY - minY + 1
+      preferredSize = new Dimension(countX * TILE_SIZE + countX ,
+                                    countY * TILE_SIZE + countY)
 
       val renderer = new TileRenderer(TILE_SIZE, TILE_SIZE)
 
       for (((tx, ty), t) <- board.tiles) {
-        g.drawImage(renderer.render(t), null, tx * TILE_SIZE, ty * TILE_SIZE)
+        g.drawImage(renderer.render(t), null, tx * TILE_SIZE + tx, ty * TILE_SIZE + ty)
       }
     }
   }
