@@ -11,7 +11,7 @@ class TileRenderer (val width: Int, val height: Int) {
   val COLOR_CITY: Color = Color.GRAY
   val STROKE_CITY: BasicStroke = new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   val COLOR_ROAD: Color = Color.BLACK
-  val STROKE_ROAD: BasicStroke = new BasicStroke(1)
+  val STROKE_ROAD: BasicStroke = new BasicStroke(3)
   val COLOR_MONASTERY: Color = Color.RED
 
   def directionToPoint(d: Direction, scale: Double = 1.0): (Int, Int) = {

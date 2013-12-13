@@ -19,8 +19,8 @@ object SwingGUI extends SimpleSwingApplication {
       val (minX, maxX, minY, maxY) = board.extent
       val countX = maxX - minX + 1
       val countY = maxY - minY + 1
-      preferredSize = new Dimension(countX * TILE_SIZE + countX ,
-                                    countY * TILE_SIZE + countY)
+      preferredSize = new Dimension(countX * TILE_SIZE + countX - 1,
+                                    countY * TILE_SIZE + countY - 1)
 
       val renderer = new TileRenderer(TILE_SIZE, TILE_SIZE)
 
