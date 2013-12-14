@@ -56,6 +56,19 @@ class TileRenderer (val width: Int, val height: Int) {
             case _ =>
               println("impossible road")
           }
+        case City =>
+          g.setColor(COLOR_CITY)
+          println("starting new city")
+          for (d <- points) {
+            val vertices = Vector(directionToPixel(d, 0.4),
+                                  directionToPixel(d - 1),
+                                  directionToPixel(d),
+                                  directionToPixel(d + 1))
+            println(d)
+            println(vertices)
+            val (xs, ys) = vertices.unzip
+            g.fillPolygon(xs.toArray, ys.toArray, xs.length)
+          }
         case Monastery =>
           g.setColor(COLOR_MONASTERY)
           val (startX, startY) = fractionToPixel(0.3, 0.3)
