@@ -9,12 +9,13 @@ import java.awt.{BasicStroke, Color}
 class TileRenderer (val width: Int, val height: Int) {
   val COLOR_GRASS: Color = Color.GREEN
   val COLOR_CITY: Color = Color.GRAY
-  val STROKE_CITY: BasicStroke = new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
   val COLOR_ROAD: Color = Color.BLACK
   val STROKE_ROAD: BasicStroke = new BasicStroke(3)
   val COLOR_MONASTERY: Color = Color.RED
 
-  def directionToPoint(d: Direction, scale: Double = 1.0): (Int, Int) = {
+  val (centreX, centreY) = fractionToPixel(0.5, 0.5)
+
+  def directionToPixel(d: Direction, scale: Double = 1.0): (Int, Int) = {
     // Position of the edge relative to the (0.5, 0.5) centre of the tile
     val (edgeX, edgeY) = d match {
       case NW => (-0.5, -0.5)
@@ -46,13 +47,11 @@ class TileRenderer (val width: Int, val height: Int) {
           g.setStroke(STROKE_ROAD)
           points.toList match {
             case a::Nil =>
-              val (startX, startY) = directionToPoint(a)
-              val (endX, endY) = directionToPoint(a, 0.3)
-              g.drawLine(startX, startY, endX, endY)
-              g.fillRect(endX - 2, endY - 2, 5, 5)
+              val (startX, startY) = directionToPixel(a)
+              g.drawLine(startX, startY, centreX, centreY)
             case a::b::Nil =>
-              val (startX, startY) = directionToPoint(a)
-              val (endX, endY) = directionToPoint(b)
+              val (startX, startY) = directionToPixel(a)
+              val (endX, endY) = directionToPixel(b)
               g.drawLine(startX, startY, endX, endY)
             case _ =>
               println("impossible road")

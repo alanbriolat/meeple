@@ -4,6 +4,7 @@ import hexico.meeple.Util
 
 object Direction extends Enumeration {
   type Direction = Value
+
   val NW, N, NE, E, SE, S, SW, W = Value
   val OMNI = values
   val N_ = Set(NW, N, NE)
@@ -11,7 +12,8 @@ object Direction extends Enumeration {
   val S_ = Set(SE, S, SW)
   val W_ = Set(SW, W, NW)
 
-  def rotate(d: Direction, n: Int = 1): Direction = {
-    Direction(Util.positiveModulo(d.id + n, maxId))
+  implicit class DirectionArithmetic (d: Direction) {
+    def +(i: Int): Direction = Direction.apply(Util.positiveModulo(d.id + i, maxId))
+    def -(i: Int): Direction = Direction.apply(Util.positiveModulo(d.id - i, maxId))
   }
 }

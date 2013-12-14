@@ -17,6 +17,6 @@ case class Feature(kind: FeatureKind,
   def shorthand: Char = kind.shorthand
 
   def rotate(n: Int): Feature = {
-    this.copy(points = for (p <- points) yield Direction.rotate(p, n * 2))
+    this.copy(points = for (p <- points) yield p + n * 2)
   }
 }
