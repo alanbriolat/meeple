@@ -2,7 +2,22 @@ package hexico.meeple.game
 
 import hexico.meeple.Util
 
-object Direction extends Enumeration {
+/**
+ * Mixin to add modular arithmetic to an Enumeration.
+ *
+ * Creates an implicit class within an enumeration which adds integer addition
+ * and subtraction for getting enum values relative to a particular value.
+ * Values are kept within the range of the enumeration, wrapping around in both
+ * directions.
+ */
+trait ModularEnumeration { self: Enumeration =>
+  implicit class ModularArithmetic (v: Value) {
+    def +(i: Int): Value = apply(Util.positiveModulo(v.id + i, maxId))
+    def -(i: Int): Value = apply(Util.positiveModulo(v.id - i, maxId))
+  }
+}
+
+object Direction extends Enumeration with ModularEnumeration {
   type Direction = Value
 
   val NW, N, NE, E, SE, S, SW, W = Value
@@ -11,9 +26,37 @@ object Direction extends Enumeration {
   val E_ = Set(NE, E, SE)
   val S_ = Set(SE, S, SW)
   val W_ = Set(SW, W, NW)
+}
 
-  implicit class DirectionArithmetic (d: Direction) {
-    def +(i: Int): Direction = Direction.apply(Util.positiveModulo(d.id + i, maxId))
-    def -(i: Int): Direction = Direction.apply(Util.positiveModulo(d.id - i, maxId))
+object Attachment extends Enumeration with ModularEnumeration {
+  type Attachment = Value
+  val NW, N, NE, E, SE, S, SW, W = Value
+
+  implicit class RichAttachment (v: Value) {
+    def opposite: Value = v + 4
+  }
+}
+
+/**
+ * A representation of the points on a tile across which a grass feature can
+ * connect to adjacent grass features.  Implemented with modular arithmetic,
+ * but also with an .opposite method to aid with finding attachment points on
+ * adjacent tiles.
+ *
+ * Attachment points are clockwise from the top-left.
+ *
+ * {{{
+ * scala> val a = GrassAttachment.N1
+ * a: hexico.meeple.game.GrassAttachment.Value = N1
+ * scala> a.opposite
+ * res0: hexico.meeple.game.GrassAttachment.Value = S2
+ * }}}
+ */
+object GrassAttachment extends Enumeration with ModularEnumeration {
+  type GrassAttachment = Value
+  val N1, N2, E1, E2, S1, S2, W1, W2 = Value
+
+  implicit class RichGrassAttachment (v: Value) {
+    def opposite: Value = if (v.id % 2 == 0) v + 5 else v + 3
   }
 }
