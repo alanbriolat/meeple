@@ -1,104 +1,184 @@
 package hexico.meeple.game
 
-import Direction._
+import hexico.meeple.game.{GrassAttachment => G, Direction => D}
+import scala.collection.mutable
 
-case class Tileset private (tiles: Vector[Tile])
+class Tileset {
+  val tiles: mutable.MutableList[Tile] = mutable.MutableList()
+
+  def addTiles(t: Tile, copies: Int) {
+    tiles ++= List.fill(copies)(t)
+  }
+}
 
 object Tileset {
-  def apply(tiles: (Tile, Int)*): Tileset = {
-    Tileset(Vector.concat((for ((t, n) <- tiles) yield Vector.fill(n)(t)):_*))
-  }
-
-  private implicit def directionToSet(d: Direction): Set[Direction] = Set(d)
-
-  val base: Tileset = Tileset(
-    (Tile(Feature(Monastery),
-          Feature(Road, S),
-          Feature(Grass, OMNI - S)), 2),
-    (Tile(Feature(Monastery),
-          Feature(Grass, OMNI)), 4),
-    (Tile(Feature(City, OMNI, List(Shield))), 1),
-    (Tile(Feature(City, E),
-          Feature(Road, N + S),
-          Feature(Grass, W_),
-          Feature(Grass, NE + SE)), 4),
-    (Tile(Feature(City, N),
-          Feature(Grass, OMNI - N)), 5),
-    (Tile(Feature(City, W + E, List(Shield)),
-          Feature(Grass, N_),
-          Feature(Grass, S_)), 2),
-    (Tile(Feature(City, N + S),
-          Feature(Grass, W_),
-          Feature(Grass, E_)), 1),
-    (Tile(Feature(City, W),
-          Feature(City, E),
-          Feature(Grass, OMNI - W - E)), 3),
-    (Tile(Feature(City, E),
-          Feature(City, S),
-          Feature(Grass, OMNI - E - S)), 2),
-    (Tile(Feature(City, N),
-          Feature(Road, E + S),
-          Feature(Grass, NE ++ W_),
-          Feature(Grass, SE)), 3),
-    (Tile(Feature(City, E),
-          Feature(Road, N + W),
-          Feature(Grass, NW),
-          Feature(Grass, NE ++ S_)), 3),
-    (Tile(Feature(City, E),
-          Feature(Road, N),
-          Feature(Road, S),
-          Feature(Road, W),
-          Feature(Grass, NE + SE),
-          Feature(Grass, NW),
-          Feature(Grass, SW)), 3),
-    (Tile(Feature(City, NW + N + W, List(Shield)),
-          Feature(Grass, OMNI - NW - N - W)), 2),
-    (Tile(Feature(City, NW + N + W),
-          Feature(Grass, OMNI - NW - N - W)), 3),
-    (Tile(Feature(City, NW + N + W, List(Shield)),
-          Feature(Road, E + S),
-          Feature(Grass, SE),
-          Feature(Grass, NE + SW)), 2),
-    (Tile(Feature(City, NW + N + W),
-          Feature(Road, E + S),
-          Feature(Grass, SE),
-          Feature(Grass, NE + SW)), 3),
-    (Tile(Feature(City, OMNI -- S_, List(Shield)),
-          Feature(Grass, S_)), 1),
-    (Tile(Feature(City, OMNI -- S_),
-          Feature(Grass, S_)), 3),
-    (Tile(Feature(City, OMNI -- S_, List(Shield)),
-          Feature(Road, S),
-          Feature(Grass, SE),
-          Feature(Grass, SW)), 2),
-    (Tile(Feature(City, OMNI -- S_),
-          Feature(Road, S),
-          Feature(Grass, SE),
-          Feature(Grass, SW)), 1),
-    (Tile(Feature(Road, N + S),
-          Feature(Grass, E_),
-          Feature(Grass, W_)), 8),
-    (Tile(Feature(Road, S + W),
-          Feature(Grass, N_ ++ E_),
-          Feature(Grass, SW)), 9),
-    (Tile(Feature(Road, E),
-          Feature(Road, S),
-          Feature(Road, W),
-          Feature(Grass, N_),
-          Feature(Grass, SE),
-          Feature(Grass, SW)), 4),
-    (Tile(Feature(Road, N),
-          Feature(Road, E),
-          Feature(Road, S),
-          Feature(Road, W),
-          Feature(Grass, NW),
-          Feature(Grass, NE),
-          Feature(Grass, SE),
-          Feature(Grass, SW)), 1)
-  )
-
-  def main(args: Array[String]) {
-    val x: Set[Direction] = W + E
-    println(x)
+  val BASE: Tileset = new Tileset {
+    // A
+    addTiles(new Tile {
+      addFeature(new Monastery)
+      addFeature(new Road, D.S)
+      addGrass(G.OMNI)
+    }, 2)
+    // B
+    addTiles(new Tile {
+      addFeature(new Monastery)
+      addGrass(G.OMNI)
+    }, 4)
+    // C
+    addTiles(new Tile {
+      addFeature(new City {
+        addFeature(Shield)
+      }, D.OMNI)
+    }, 1)
+    // D (inc. start tile)
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.E_)
+      addFeature(new Road, D.N + D.S)
+      addGrass(G.W_ + G.N1 + G.S2)
+      addGrass(G.N2 + G.S1, Set(c1))
+    }, 4)
+    // E
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.N_)
+      addGrass(G.OMNI -- G.N_, Set(c1))
+    }, 5)
+    // F
+    addTiles(new Tile {
+      val c1 = addFeature(new City {
+        addFeature(Shield)
+      }, D.W_ ++ D.E_)
+      addGrass(G.N_, Set(c1))
+      addGrass(G.S_, Set(c1))
+    }, 2)
+    // G
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.N_ ++ D.S_)
+      addGrass(G.W_, Set(c1))
+      addGrass(G.E_, Set(c1))
+    }, 1)
+    // H
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.W_)
+      val c2 = addFeature(new City, D.E_)
+      addGrass(G.N_ ++ G.S_, Set(c1, c2))
+    }, 3)
+    // I
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.E_)
+      val c2 = addFeature(new City, D.S_)
+      addGrass(G.N_ ++ G.W_, Set(c1, c2))
+    }, 2)
+    // J
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.N_)
+      addFeature(new Road, D.E + D.S)
+      addGrass(G.W_ + G.E1 + G.S2, Set(c1))
+      addGrass(G.E2 + G.S1)
+    }, 3)
+    // K
+    addTiles(new Tile {
+      addFeature(new Road, D.N + D.W)
+      val c1 = addFeature(new City, D.E_)
+      addGrass(G.N1 + G.W2)
+      addGrass(G.N2 ++ G.S_ + G.W1, Set(c1))
+    }, 3)
+    // L
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.E_)
+      addFeature(new Road, D.N)
+      addFeature(new Road, D.S)
+      addFeature(new Road, D.W)
+      addGrass(G.N1 + G.W2)
+      addGrass(G.N2 + G.S1, Set(c1))
+      addGrass(G.S2 + G.W1)
+    }, 3)
+    // M
+    addTiles(new Tile {
+      val c1 = addFeature(new City {
+        addFeature(Shield)
+      }, D.N_ ++ D.W_)
+      addGrass(G.E_ ++ G.S_, Set(c1))
+    }, 2)
+    // N
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.N_ ++ D.W_)
+      addGrass(G.E_ ++ G.S_, Set(c1))
+    }, 3)
+    // O
+    addTiles(new Tile {
+      val c1 = addFeature(new City {
+        addFeature(Shield)
+      }, D.N_ ++ D.W_)
+      addFeature(new Road, D.E + D.S)
+      addGrass(G.E1 + G.S2, Set(c1))
+      addGrass(G.E2 + G.S1)
+    }, 2)
+    // P
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.N_ ++ D.W_)
+      addFeature(new Road, D.E + D.S)
+      addGrass(G.E1 + G.S2, Set(c1))
+      addGrass(G.E2 + G.S1)
+    }, 3)
+    // Q
+    addTiles(new Tile {
+      val c1 = addFeature(new City {
+        addFeature(Shield)
+      }, D.OMNI - D.S)
+      addGrass(G.S_, Set(c1))
+    }, 1)
+    // R
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.OMNI - D.S)
+      addGrass(G.S_, Set(c1))
+    }, 3)
+    // S
+    addTiles(new Tile {
+      val c1 = addFeature(new City {
+        addFeature(Shield)
+      }, D.OMNI - D.S)
+      addFeature(new Road, D.S)
+      addGrass(G.S1, Set(c1))
+      addGrass(G.S2, Set(c1))
+    }, 2)
+    // T
+    addTiles(new Tile {
+      val c1 = addFeature(new City, D.OMNI - D.S)
+      addFeature(new Road, D.S)
+      addGrass(G.S1, Set(c1))
+      addGrass(G.S2, Set(c1))
+    }, 1)
+    // U
+    addTiles(new Tile {
+      addFeature(new Road, D.N + D.S)
+      addGrass(G.N1 + G.S2 ++ G.W_)
+      addGrass(G.N2 + G.S1 ++ G.E_)
+    }, 8)
+    // V
+    addTiles(new Tile {
+      addFeature(new Road, D.S + D.W)
+      addGrass(G.N_ ++ G.E_ + G.S1 + G.W2)
+      addGrass(G.S2 + G.W1)
+    }, 9)
+    // W
+    addTiles(new Tile {
+      addFeature(new Road, D.E)
+      addFeature(new Road, D.S)
+      addFeature(new Road, D.W)
+      addGrass(G.W2 ++ G.N_ + G.E1)
+      addGrass(G.E2 + G.S1)
+      addGrass(G.S2 + G.W1)
+    }, 4)
+    // X
+    addTiles(new Tile {
+      addFeature(new Road, D.N)
+      addFeature(new Road, D.E)
+      addFeature(new Road, D.S)
+      addFeature(new Road, D.W)
+      addGrass(G.N2 + G.E1)
+      addGrass(G.E2 + G.S1)
+      addGrass(G.S2 + G.W1)
+      addGrass(G.W2 + G.N1)
+    }, 1)
   }
 }

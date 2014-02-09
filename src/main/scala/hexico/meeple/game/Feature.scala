@@ -1,22 +1,19 @@
 package hexico.meeple.game
 
-import hexico.meeple.game.Direction._
+import scala.collection.mutable
 
-sealed abstract class FeatureKind (val occupiable: Boolean) {
+abstract class Feature {
+  val contains: mutable.MutableList[Feature] = mutable.MutableList()
   def shorthand: Char = getClass.getSimpleName()(0)
-}
-case object Road extends FeatureKind(true)
-case object City extends FeatureKind(true)
-case object Grass extends FeatureKind(true)
-case object Monastery extends FeatureKind(true)
-case object Shield extends FeatureKind(false)
 
-case class Feature(kind: FeatureKind,
-                   points: Set[Direction] = Set(),
-                   contains: Seq[FeatureKind] = Seq()) {
-  def shorthand: Char = kind.shorthand
-
-  def rotate(n: Int): Feature = {
-    this.copy(points = for (p <- points) yield p + n * 2)
+  def addFeature(feature: Feature) {
+    contains += feature
   }
 }
+
+class Road extends Feature
+class City extends Feature
+class Monastery extends Feature
+case object Shield extends Feature
+
+class Grass extends Feature

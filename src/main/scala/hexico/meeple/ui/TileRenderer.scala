@@ -40,6 +40,7 @@ class TileRenderer (val width: Int, val height: Int) {
     g.setBackground(COLOR_GRASS)
     g.clearRect(0, 0, width, height)
 
+    /*
     for (Feature(kind, points, contains) <- t.features) {
       kind match {
         case Road =>
@@ -77,6 +78,7 @@ class TileRenderer (val width: Int, val height: Int) {
         case _ =>
       }
     }
+    */
 
     // Return BufferedImage
     i
