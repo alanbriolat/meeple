@@ -40,13 +40,12 @@ class TileRenderer (val width: Int, val height: Int) {
     g.setBackground(COLOR_GRASS)
     g.clearRect(0, 0, width, height)
 
-    /*
-    for (Feature(kind, points, contains) <- t.features) {
-      kind match {
-        case Road =>
+    t.features.foreach { f =>
+      f.feature match {
+        case r: Road =>
           g.setColor(COLOR_ROAD)
           g.setStroke(STROKE_ROAD)
-          points.toList match {
+          f.points.toList match {
             case a::Nil =>
               val (startX, startY) = directionToPixel(a)
               g.drawLine(startX, startY, centreX, centreY)
@@ -57,10 +56,11 @@ class TileRenderer (val width: Int, val height: Int) {
             case _ =>
               println("impossible road")
           }
-        case City =>
+        case c: City =>
+          // TODO: this renderer is crap
           g.setColor(COLOR_CITY)
           println("starting new city")
-          for (d <- points) {
+          for (d <- f.points) {
             val vertices = Vector(directionToPixel(d, 0.4),
                                   directionToPixel(d - 1),
                                   directionToPixel(d),
@@ -70,15 +70,14 @@ class TileRenderer (val width: Int, val height: Int) {
             val (xs, ys) = vertices.unzip
             g.fillPolygon(xs.toArray, ys.toArray, xs.length)
           }
-        case Monastery =>
+        case m: Monastery =>
           g.setColor(COLOR_MONASTERY)
           val (startX, startY) = fractionToPixel(0.3, 0.3)
           val (spanX, spanY) = fractionToPixel(0.4, 0.4)
           g.fillRect(startX, startY, spanX, spanY)
-        case _ =>
+        case _ => println("unhandled feature")
       }
     }
-    */
 
     // Return BufferedImage
     i
