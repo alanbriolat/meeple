@@ -63,7 +63,7 @@ class TileRenderer (val width: Int, val height: Int) {
           // Iterate over pairs of points (starting with (last, first)) and
           // build a list of vertices to draw
           val vertices = (sorted.last :: sorted).sliding(2).flatMap { case List(a, b) =>
-            (b - a) match {
+            (b - a.id).id match {
               // Adjacent points, draw directly to the point
               case 1 => List(directionToPixel(b))
               // Adjacent corners, curve away from the edge
