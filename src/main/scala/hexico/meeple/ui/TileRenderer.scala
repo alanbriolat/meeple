@@ -57,19 +57,27 @@ class TileRenderer (val width: Int, val height: Int) {
               println("impossible road")
           }
         case c: City =>
-          // TODO: this renderer is crap
           g.setColor(COLOR_CITY)
-          println("starting new city")
-          for (d <- f.points) {
-            val vertices = Vector(directionToPixel(d, 0.4),
-                                  directionToPixel(d - 1),
-                                  directionToPixel(d),
-                                  directionToPixel(d + 1))
-            println(d)
-            println(vertices)
-            val (xs, ys) = vertices.unzip
-            g.fillPolygon(xs.toArray, ys.toArray, xs.length)
+          // Sort points
+          val sorted = f.points.toList.sorted
+          // Iterate over pairs of points (starting with (last, first)) and
+          // build a list of vertices to draw
+          val vertices = (sorted.last :: sorted).sliding(2).flatMap {
+            // Adjacent points, draw directly to the point
+            case List(a, b) if b == a + 1 => List(directionToPixel(b))
+            // Adjacent corners, curve away from the edge
+            case List(a, b) if b == a + 2 => List(directionToPixel(a, 0.5),
+                                                  directionToPixel(b, 0.5),
+                                                  directionToPixel(b))
+            // Opposite corners, curve away from the centre
+            case List(a, b) if b == a + 4 => List(directionToPixel(a + 6, 0.2),
+                                                  directionToPixel(b))
+            // Adjacent corners the "long way round", edge city special case
+            case List(a, b) if b == a + 6 => List(directionToPixel(a - 1, 0.6),
+                                                  directionToPixel(b))
           }
+          val (xs, ys) = vertices.toStream.unzip
+          g.fillPolygon(xs.toArray, ys.toArray, xs.length)
         case m: Monastery =>
           g.setColor(COLOR_MONASTERY)
           val (startX, startY) = fractionToPixel(0.3, 0.3)
