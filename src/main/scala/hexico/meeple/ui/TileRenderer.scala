@@ -45,17 +45,18 @@ class TileRenderer (val width: Int, val height: Int) {
         case r: Road =>
           g.setColor(COLOR_ROAD)
           g.setStroke(STROKE_ROAD)
-          f.points.toList match {
+          val vertices: List[(Int, Int)] = f.points.toList match {
             case a::Nil =>
-              val (startX, startY) = directionToPixel(a)
-              g.drawLine(startX, startY, centreX, centreY)
+              List(directionToPixel(a), directionToPixel(a, 0.2))
             case a::b::Nil =>
-              val (startX, startY) = directionToPixel(a)
-              val (endX, endY) = directionToPixel(b)
-              g.drawLine(startX, startY, endX, endY)
+              List(directionToPixel(a), directionToPixel(a, 0.5),
+                   directionToPixel(b, 0.5), directionToPixel(b))
             case _ =>
               println("impossible road")
+              List()
           }
+          val (xs, ys) = vertices.unzip
+          g.drawPolyline(xs.toArray, ys.toArray, xs.length)
         case c: City =>
           g.setColor(COLOR_CITY)
           // Sort points
