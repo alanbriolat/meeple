@@ -12,6 +12,8 @@ class Tileset {
 }
 
 object Tileset {
+  implicit def autoSingleton[T <: Enumeration](v: T#Value): Set[T#Value] = Set(v)
+
   val BASE: Tileset = new Tileset {
     // A
     addTiles(new Tile {

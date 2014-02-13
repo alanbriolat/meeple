@@ -14,14 +14,18 @@ trait ModularEnumeration { self: Enumeration =>
   implicit class ModularArithmetic (v: Value) {
     def +(i: Int): Value = apply(Util.positiveModulo(v.id + i, maxId))
     def -(i: Int): Value = apply(Util.positiveModulo(v.id - i, maxId))
-  }
-}
 
-/**
- * Add an automatic conversion to a singleton set to an Enumeration.
- */
-trait AutoSingleton {self: Enumeration =>
-  implicit def toSingleton(v: Value): Set[Value] = Set(v)
+    /**
+     * Distance between values in positive direction.
+     *
+     * {{{
+     * val a = NE
+     * val b = SW
+     * a + (b - a) == b
+     * }}}
+     */
+    def -(v: Value): Int = (this - v.id).id
+  }
 }
 
 /**
@@ -29,7 +33,7 @@ trait AutoSingleton {self: Enumeration =>
  * can attach to adjacent features via.  Has an .opposite method to aid finding
  * attachment points on adjacent tiles.
  */
-object Direction extends Enumeration with ModularEnumeration with AutoSingleton {
+object Direction extends Enumeration with ModularEnumeration {
   type Direction = Value
 
   val NW, N, NE, E, SE, S, SW, W = Value
@@ -60,7 +64,7 @@ object Direction extends Enumeration with ModularEnumeration with AutoSingleton 
  * res0: hexico.meeple.game.GrassAttachment.Value = S2
  * }}}
  */
-object GrassAttachment extends Enumeration with ModularEnumeration with AutoSingleton {
+object GrassAttachment extends Enumeration with ModularEnumeration {
   type GrassAttachment = Value
 
   val N1, N2, E1, E2, S1, S2, W1, W2 = Value
