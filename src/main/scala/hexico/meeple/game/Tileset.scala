@@ -17,8 +17,8 @@ object Tileset {
   val BASE: Tileset = new Tileset {
     // A
     addTiles(new Tile {
-      addFeature(new Monastery)
       addFeature(new Road, D.S)
+      addFeature(new Monastery)
       addGrass(G.OMNI)
     }, 2)
     // B
@@ -34,8 +34,8 @@ object Tileset {
     }, 1)
     // D (inc. start tile)
     addTiles(new Tile {
-      val c1 = addFeature(new City, D.E_)
       addFeature(new Road, D.N + D.S)
+      val c1 = addFeature(new City, D.E_)
       addGrass(G.W_ + G.N1 + G.S2)
       addGrass(G.N2 + G.S1, Set(c1))
     }, 4)
@@ -72,8 +72,8 @@ object Tileset {
     }, 2)
     // J
     addTiles(new Tile {
-      val c1 = addFeature(new City, D.N_)
       addFeature(new Road, D.E + D.S)
+      val c1 = addFeature(new City, D.N_)
       addGrass(G.W_ + G.E1 + G.S2, Set(c1))
       addGrass(G.E2 + G.S1)
     }, 3)
@@ -86,10 +86,10 @@ object Tileset {
     }, 3)
     // L
     addTiles(new Tile {
-      val c1 = addFeature(new City, D.E_)
       addFeature(new Road, D.N)
       addFeature(new Road, D.S)
       addFeature(new Road, D.W)
+      val c1 = addFeature(new City, D.E_)
       addGrass(G.N1 + G.W2)
       addGrass(G.N2 + G.S1, Set(c1))
       addGrass(G.S2 + G.W1)
@@ -108,17 +108,17 @@ object Tileset {
     }, 3)
     // O
     addTiles(new Tile {
+      addFeature(new Road, D.E + D.S)
       val c1 = addFeature(new City {
         addFeature(Shield)
       }, D.N_ ++ D.W_)
-      addFeature(new Road, D.E + D.S)
       addGrass(G.E1 + G.S2, Set(c1))
       addGrass(G.E2 + G.S1)
     }, 2)
     // P
     addTiles(new Tile {
-      val c1 = addFeature(new City, D.N_ ++ D.W_)
       addFeature(new Road, D.E + D.S)
+      val c1 = addFeature(new City, D.N_ ++ D.W_)
       addGrass(G.E1 + G.S2, Set(c1))
       addGrass(G.E2 + G.S1)
     }, 3)
@@ -136,17 +136,17 @@ object Tileset {
     }, 3)
     // S
     addTiles(new Tile {
+      addFeature(new Road, D.S)
       val c1 = addFeature(new City {
         addFeature(Shield)
       }, D.OMNI - D.S)
-      addFeature(new Road, D.S)
       addGrass(G.S1, Set(c1))
       addGrass(G.S2, Set(c1))
     }, 2)
     // T
     addTiles(new Tile {
-      val c1 = addFeature(new City, D.OMNI - D.S)
       addFeature(new Road, D.S)
+      val c1 = addFeature(new City, D.OMNI - D.S)
       addGrass(G.S1, Set(c1))
       addGrass(G.S2, Set(c1))
     }, 1)
