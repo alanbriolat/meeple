@@ -3,5 +3,4 @@
 /*.iml
 
 # Maven/SBT files
-/target/
-/project/target/
+target/
