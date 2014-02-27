@@ -3,17 +3,16 @@ package hexico.meeple.ui
 import java.awt.image.BufferedImage
 import hexico.meeple.game._
 import hexico.meeple.game.Direction._
-import java.awt.{BasicStroke, Color}
+import java.awt.{RenderingHints, BasicStroke, Color}
 
 
 class TileRenderer (val width: Int, val height: Int) {
   val COLOR_GRASS: Color = Color.GREEN
   val COLOR_CITY: Color = Color.GRAY
   val COLOR_ROAD: Color = Color.BLACK
-  val STROKE_ROAD: BasicStroke = new BasicStroke(3)
+  val STROKE_ROAD: BasicStroke =
+    new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER)
   val COLOR_MONASTERY: Color = Color.RED
-
-  val (centreX, centreY) = fractionToPixel(0.5, 0.5)
 
   def directionToPixel(d: Direction, scale: Double = 1.0): (Int, Int) = {
     // Position of the edge relative to the (0.5, 0.5) centre of the tile
@@ -36,6 +35,8 @@ class TileRenderer (val width: Int, val height: Int) {
   def render(t: Tile): BufferedImage = {
     val i = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
     val g = i.createGraphics()
+
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
     g.setBackground(COLOR_GRASS)
     g.clearRect(0, 0, width, height)
