@@ -1,52 +1,38 @@
 package hexico.meeple.game
 
-import Direction._
-import GrassAttachment._
-import scala.collection.mutable
+import hexico.meeple.game.{Direction => D, GrassAttachment => G}
 
-case class TileFeature(feature: Feature, points: Set[Direction] = Set()) {
+sealed abstract class TilePatch {
+  def rotate(n: Int): TilePatch
+}
+
+case class TileFeature(feature: Feature, points: Set[D.Value] = Set()) extends TilePatch {
   def rotate(n: Int): TileFeature =
     TileFeature(feature, for (p <- points) yield p.rotate(n))
+
+  def at(newPoints: Set[D.Value]): TileFeature = TileFeature(feature, newPoints)
 }
 
-case class TileGrass(points: Set[GrassAttachment], features: Set[Feature] = Set()) {
+case class TileGrass(points: Set[G.Value] = Set(), touches: Set[Int] = Set()) extends TilePatch {
   def rotate(n: Int): TileGrass =
-    TileGrass(for (p <- points) yield p.rotate(n), features)
+    TileGrass(for (p <- points) yield p.rotate(n), touches)
+
+  def at(newPoints: Set[G.Value]): TileGrass = this.copy(points=newPoints)
+
+  def touching(newTouches: Set[Int]): TileGrass = this.copy(touches=newTouches)
 }
 
-class Tile {
-  val features: mutable.MutableList[TileFeature] = mutable.MutableList()
-  val grass: mutable.MutableList[TileGrass] = mutable.MutableList()
-
-  private def this(features: TraversableOnce[TileFeature], grass: TraversableOnce[TileGrass]) {
-    this()
-    this.features ++= features
-    this.grass ++= grass
+case class Tile(patches: Vector[TilePatch]) {
+  def rotate(n: Int): Tile = {
+    Tile(for (p <- patches) yield p.rotate(n))
   }
 
-  def addFeature(feature: Feature, attach: Set[Direction] = Set()): Feature = {
-    // TODO: check that *attach* doesn't overlap an existing feature
-    features += TileFeature(feature, attach)
-    feature
+  def features: Seq[TileFeature] = patches flatMap {
+    case f: TileFeature => Some(f)
+    case _ => None
   }
+}
 
-  def addGrass(attach: Set[GrassAttachment], touches: Set[Feature] = Set()) {
-    // TODO: check that *attach* doesn't overlap an existing grass
-    // TODO: check that all features in *touches* exist in this tile
-    grass += TileGrass(attach, touches)
-  }
-
-  def rotate(n: Int): Tile =
-    new Tile(for (f <- features) yield f.rotate(n), for (g <- grass) yield g.rotate(n))
-
-  override def toString = {
-    val points: Map[Direction, Char] = (for {
-      TileFeature(f, points) <- features
-      d <- points
-    } yield d -> f.shorthand).toMap
-
-    def p(d: Direction): Char = if (points contains d) points(d) else ' '
-
-    s"${p(NW)} ${p(N)} ${p(NE)}\n${p(W)}   ${p(E)}\n${p(SW)} ${p(S)} ${p(SE)}"
-  }
+object Tile {
+  def apply(patches: TilePatch*): Tile = Tile(patches.toVector)
 }

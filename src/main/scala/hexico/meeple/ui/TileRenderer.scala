@@ -77,7 +77,7 @@ class TileRenderer (val width: Int, val height: Int) {
           }
           val (xs, ys) = vertices.toStream.unzip
           g.fillPolygon(xs.toArray, ys.toArray, xs.length)
-        case m: Monastery =>
+        case Monastery =>
           g.setColor(COLOR_MONASTERY)
           val (startX, startY) = fractionToPixel(0.3, 0.3)
           val (spanX, spanY) = fractionToPixel(0.4, 0.4)

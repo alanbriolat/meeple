@@ -1,19 +1,10 @@
 package hexico.meeple.game
 
-import scala.collection.mutable
-
-abstract class Feature {
-  val contains: mutable.MutableList[Feature] = mutable.MutableList()
+abstract class Feature(val contains: Feature*) {
   def shorthand: Char = getClass.getSimpleName()(0)
-
-  def addFeature(feature: Feature) {
-    contains += feature
-  }
 }
 
-class Road extends Feature
-class City extends Feature
-class Monastery extends Feature
+case class Road(override val contains: Feature*) extends Feature
+case class City(override val contains: Feature*) extends Feature
+case object Monastery extends Feature
 case object Shield extends Feature
-
-class Grass extends Feature

@@ -5,11 +5,11 @@ import hexico.meeple.game._
 import scala.util.Random
 
 object SwingGUI extends SimpleSwingApplication {
-  val tileset = Tileset.BASE
+  val tileset = Tileset.START ++ Tileset.BASE
   val random = new Random()
   val board: Board = new Board
   for (x <- 0 to 6; y <- 0 to 6) {
-    board.addTile(tileset.tiles(random.nextInt(tileset.tiles.length)), (x, y))
+    board.addTile(tileset(random.nextInt(tileset.length)), (x, y))
   }
 
   class BoardPanel (val board: Board) extends Label {
