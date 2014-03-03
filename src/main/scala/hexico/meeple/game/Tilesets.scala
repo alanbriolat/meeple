@@ -1,18 +1,9 @@
 package hexico.meeple.game
 
 import hexico.meeple.game.{GrassAttachment => G, Direction => D}
+import TilesetHelpers._
 
-object Tileset {
-  def Grass: TileGrass = TileGrass()
-
-  implicit def toTileFeature(f: Feature): TileFeature = TileFeature(f)
-
-  implicit class RichInt(i: Int) {
-    def of(t: Tile): Vector[Tile] = Vector.fill(i)(t)
-  }
-
-  implicit def autoSingleton[T <: Enumeration](v: T#Value): Set[T#Value] = Set(v)
-
+object Tilesets {
   val START = Vector(
     Tile(Road() at Set(D.N, D.S),
          City() at Set(D.NE, D.E, D.SE),
