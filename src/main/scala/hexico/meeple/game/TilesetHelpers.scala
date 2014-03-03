@@ -1,5 +1,7 @@
 package hexico.meeple.game
 
+import scala.language.implicitConversions
+
 object TilesetHelpers {
   def Grass: TileGrass = TileGrass()
 
