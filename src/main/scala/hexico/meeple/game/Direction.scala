@@ -34,8 +34,6 @@ trait ModularEnumeration { self: Enumeration =>
  * attachment points on adjacent tiles.
  */
 object Direction extends Enumeration with ModularEnumeration {
-  type Direction = Value
-
   val NW, N, NE, E, SE, S, SW, W = Value
   val OMNI = values
   val N_ = Set(NW, N, NE)
@@ -65,8 +63,6 @@ object Direction extends Enumeration with ModularEnumeration {
  * }}}
  */
 object GrassAttachment extends Enumeration with ModularEnumeration {
-  type GrassAttachment = Value
-
   val N1, N2, E1, E2, S1, S2, W1, W2 = Value
   val OMNI = values
   val N_ = Set(N1, N2)
