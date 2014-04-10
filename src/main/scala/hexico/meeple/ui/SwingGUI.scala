@@ -8,7 +8,7 @@ object SwingGUI extends SimpleSwingApplication {
   val tileset = Tilesets.START ++ Tilesets.BASE
   val random = new Random()
   val board: Board = new Board
-  for (x <- 0 to 6; y <- 0 to 6) {
+  for (x <- -3 to 3; y <- -3 to 3) {
     board.addTile(tileset(random.nextInt(tileset.length)), (x, y))
   }
 
@@ -19,13 +19,14 @@ object SwingGUI extends SimpleSwingApplication {
       val (minX, maxX, minY, maxY) = board.extent
       val countX = maxX - minX + 1
       val countY = maxY - minY + 1
-      preferredSize = new Dimension(countX * TILE_SIZE + countX - 1,
-                                    countY * TILE_SIZE + countY - 1)
+      preferredSize = new Dimension(countX * TILE_SIZE + countX + 1,
+                                    countY * TILE_SIZE + countY + 1)
 
       val renderer = new TileRenderer(TILE_SIZE, TILE_SIZE)
 
       for (((tx, ty), t) <- board.tiles) {
-        g.drawImage(renderer.render(t), null, tx * TILE_SIZE + tx, ty * TILE_SIZE + ty)
+        val (x, y) = (tx - minX, ty - minY)
+        g.drawImage(renderer.render(t), null, x * TILE_SIZE + x + 1, y * TILE_SIZE + y + 1)
       }
     }
   }
