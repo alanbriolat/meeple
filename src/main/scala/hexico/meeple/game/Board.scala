@@ -1,6 +1,8 @@
 package hexico.meeple.game
 
 import scala.collection.mutable
+import scala.swing.Publisher
+import scala.swing.event.Event
 
 /**
  * We need to accurately represent tile features in a way that is both accurate for an individual tile and also allows
@@ -18,17 +20,28 @@ import scala.collection.mutable
  * corresponding corners only if the edge feature between the tiles is non-blocking.  For example, sharing a corner
  * and joined by open field or road is fine, but joined by a city isn't.
  */
-class Board {
+
+case object BoardChanged extends Event
+
+class Board extends Publisher {
   private val _tiles: mutable.Map[(Int, Int), Tile] = mutable.Map().withDefaultValue(null)
 
   def tiles: Map[(Int, Int), Tile] = _tiles.toMap
 
   def addTile(t: Tile, p: (Int, Int)) {
     _tiles(p) = t
+    publish(BoardChanged)
   }
 
+  /**
+   * Get the extent of the board.  This includes all places that could possibly
+   * be played next, so is 1 tile larger in every direction than the extent of
+   * the played tiles.
+   *
+   * @return (minX, maxX, minY, maxY)
+   */
   def extent: (Int, Int, Int, Int) = {
     val (xs, ys) = _tiles.keys.unzip
-    (xs.min, xs.max, ys.min, ys.max)
+    (xs.min - 1, xs.max + 1, ys.min - 1, ys.max + 1)
   }
 }

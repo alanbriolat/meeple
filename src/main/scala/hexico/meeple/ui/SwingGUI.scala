@@ -3,39 +3,40 @@ package hexico.meeple.ui
 import scala.swing._
 import hexico.meeple.game._
 import scala.util.Random
+import scala.collection.mutable
+import javax.swing.SpringLayout.Constraints
 
 object SwingGUI extends SimpleSwingApplication {
-  val tileset = Tilesets.START ++ Tilesets.BASE
   val random = new Random()
+  val tileset = new mutable.Queue ++ Tilesets.START ++ random.shuffle(Tilesets.BASE)
   val board: Board = new Board
-  for (x <- -3 to 3; y <- -3 to 3) {
-    board.addTile(tileset(random.nextInt(tileset.length)), (x, y))
-  }
 
-  class BoardPanel (val board: Board) extends Label {
-    val TILE_SIZE: Int = 50
-
-    override def paintComponent(g: Graphics2D) {
-      val (minX, maxX, minY, maxY) = board.extent
-      val countX = maxX - minX + 1
-      val countY = maxY - minY + 1
-      preferredSize = new Dimension(countX * TILE_SIZE + countX + 1,
-                                    countY * TILE_SIZE + countY + 1)
-
-      val renderer = new TileRenderer(TILE_SIZE, TILE_SIZE)
-
-      for (((tx, ty), t) <- board.tiles) {
-        val (x, y) = (tx - minX, ty - minY)
-        g.drawImage(renderer.render(t), null, x * TILE_SIZE + x + 1, y * TILE_SIZE + y + 1)
-      }
-    }
-  }
+  board.addTile(tileset.dequeue(), (0, 0))
+  var next = tileset.dequeue()
 
   def top = new MainFrame {
     title = "Meeple: A Carcassonne Explorer"
-    contents = new ScrollPane {
-      preferredSize = new Dimension(640, 480)
-      contents = new BoardPanel(board)
+    preferredSize = new Dimension(800, 600)
+
+    val boardPanel = new BoardPanel(board)
+    val previewPanel = new TilePreviewPanel(50)
+    previewPanel.tile = next
+
+    val menu = new GridBagPanel {
+      val showMoves = new CheckBox("Show possible moves")
+      val c = new Constraints
+      c.anchor = GridBagPanel.Anchor.North
+      c.gridx = 0
+      layout(showMoves) = c
+      layout(previewPanel) = c
+      c.weighty = 1
+      layout(Swing.VGlue) = c
+    }
+    contents = new BorderPanel {
+      layout(new ScrollPane {
+        contents = boardPanel
+      }) = BorderPanel.Position.Center
+      layout(menu) = BorderPanel.Position.East
     }
   }
 }
