@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage
 import hexico.meeple.game.{Direction, Tile}
 import scala.swing.event.MouseClicked
 
-class TilePreviewPanel (val tileSize: Int = 50) extends Panel {
+class TilePreviewPanel (val tileSize: Int) extends Panel {
   val nubSize: Int = tileSize / 5
   val renderer = new TileRenderer(tileSize, tileSize)
   val (width, height) = (tileSize * 2 + 3, tileSize * 2 + 3)
@@ -50,6 +50,7 @@ class TilePreviewPanel (val tileSize: Int = 50) extends Panel {
   def tile: Tile = _tile
   def tile_=(t: Tile) {
     _tile = t
+    _selectedRotation = None
     if (t == null) {
       rendered = null
     } else {
