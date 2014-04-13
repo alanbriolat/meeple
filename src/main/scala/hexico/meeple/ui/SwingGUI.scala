@@ -12,6 +12,7 @@ object SwingGUI extends SimpleSwingApplication {
   val board: Board = new Board
   val boardPanel = new BoardPanel(board, TILE_SIZE)
   val previewPanel = new TilePreviewPanel(TILE_SIZE)
+  val stateLabel = new Label(s"${tileset.size - 1} tiles remaining")
 
   // Add the start tile
   board.addTile(tileset.dequeue(), (0, 0))
@@ -22,9 +23,15 @@ object SwingGUI extends SimpleSwingApplication {
   listenTo(boardPanel)
   reactions += {
     case TileClicked(x, y) if !(board.tiles contains (x, y)) => {
-      for (rotation <- previewPanel.selectedRotation) {
-        board.addTile(previewPanel.tile.rotate(rotation), (x, y))
-        previewPanel.tile = tileset.dequeue()
+      for (tile <- previewPanel.selectedTile) {
+        board.addTile(tile, (x, y))
+        if (tileset.size == 0) {
+          stateLabel.text = "Game over!"
+          previewPanel.tile = null
+        } else {
+          stateLabel.text = s"${tileset.size} tiles remaining"
+          previewPanel.tile = tileset.dequeue()
+        }
       }
     }
   }
@@ -40,6 +47,7 @@ object SwingGUI extends SimpleSwingApplication {
       c.gridx = 0
       layout(showMoves) = c
       layout(previewPanel) = c
+      layout(stateLabel) = c
       c.weighty = 1
       layout(Swing.VGlue) = c
     }

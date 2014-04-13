@@ -23,6 +23,14 @@ class TilePreviewPanel (val tileSize: Int) extends Panel {
   private var _selectedRotation: Option[Int] = None
   def selectedRotation: Option[Int] = _selectedRotation
 
+  def selectedTile: Option[Tile] = {
+    if (_selectedRotation != None && _tile != null) {
+      Some(_tile.rotate(_selectedRotation.get))
+    } else {
+      None
+    }
+  }
+
   listenTo(mouse.clicks)
   reactions += {
     case e: MouseClicked => {
