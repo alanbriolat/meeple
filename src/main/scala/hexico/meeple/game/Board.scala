@@ -44,4 +44,8 @@ class Board extends Publisher {
     val (xs, ys) = _tiles.keys.unzip
     (xs.min - 1, xs.max + 1, ys.min - 1, ys.max + 1)
   }
+
+  def valid(t: Tile, p: (Int, Int)): Boolean = {
+    !(_tiles contains p)
+  }
 }

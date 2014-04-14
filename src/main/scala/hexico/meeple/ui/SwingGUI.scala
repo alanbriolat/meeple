@@ -22,8 +22,8 @@ object SwingGUI extends SimpleSwingApplication {
   // Listen for tile clicks and place tiles
   listenTo(boardPanel)
   reactions += {
-    case TileClicked(x, y) if !(board.tiles contains (x, y)) => {
-      for (tile <- previewPanel.selectedTile) {
+    case TileClicked(x, y) => {
+      for (tile <- previewPanel.selectedTile if board.valid(tile, (x, y))) {
         board.addTile(tile, (x, y))
         if (tileset.size == 0) {
           stateLabel.text = "Game over!"
