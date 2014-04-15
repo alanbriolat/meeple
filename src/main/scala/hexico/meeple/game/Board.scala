@@ -3,6 +3,7 @@ package hexico.meeple.game
 import scala.collection.mutable
 import scala.swing.Publisher
 import scala.swing.event.Event
+import hexico.meeple.game.{Direction => D}
 
 /**
  * We need to accurately represent tile features in a way that is both accurate for an individual tile and also allows
@@ -45,7 +46,44 @@ class Board extends Publisher {
     (xs.min - 1, xs.max + 1, ys.min - 1, ys.max + 1)
   }
 
+  def adjacentIndex(p: (Int, Int), d: D.Value): (Int, Int) = {
+    val (x, y) = p
+    d match {
+      case D.NW => (x - 1, y - 1)
+      case D.N  => (x, y - 1)
+      case D.NE => (x + 1, y - 1)
+      case D.E  => (x + 1, y)
+      case D.SE => (x + 1, y + 1)
+      case D.S  => (x, y + 1)
+      case D.SW => (x - 1, y + 1)
+      case D.W  => (x - 1, y)
+    }
+  }
+
+  def adjacent(p: (Int, Int), d: D.Value): Option[Tile] = _tiles.get(adjacentIndex(p, d))
+
+  def adjacent4(p: (Int, Int)): Vector[(D.Value, Tile)] = {
+    (for (i <- 0 to 3; d = D.N.rotate(i); t <- adjacent(p, d)) yield (d, t)).toVector
+  }
+
+  def adjacent8(p: (Int, Int)): Vector[(D.Value, Tile)] = {
+    (for (i <- 0 to 7; d = D.NW + i; t <- adjacent(p, d)) yield (d, t)).toVector
+  }
+
   def valid(t: Tile, p: (Int, Int)): Boolean = {
-    !(_tiles contains p)
+    !(_tiles contains p) && checkAdjacent(t, p)
+  }
+
+  def checkAdjacent(t1: Tile, p: (Int, Int)): Boolean = {
+    val tiles = adjacent4(p)
+    tiles.length > 0 && (for ((d, t2) <- tiles) yield check(t1, t2, d)).forall(identity)
+  }
+
+  def check(t1: Tile, t2: Tile, d: D.Value): Boolean = {
+    (t1.featureEdges.get(d), t2.featureEdges.get(d.opposite)) match {
+      case (None, None) => true
+      case (Some(f1), Some(f2)) if f1.feature.getClass == f2.feature.getClass => true
+      case _ => false
+    }
   }
 }

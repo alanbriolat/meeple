@@ -23,6 +23,14 @@ case class TileGrass(points: Set[G.Value] = Set(), touches: Set[Int] = Set()) ex
 }
 
 case class Tile(patches: Vector[TilePatch]) {
+  val featureEdges: Map[D.Value, TileFeature] = patches.collect({
+    case tf: TileFeature => for (edge <- tf.points) yield edge -> tf
+  }).flatten.toMap
+
+  val grassEdges: Map[G.Value, TileGrass] = patches.collect({
+    case tg: TileGrass => for (edge <- tg.points) yield edge -> tg
+  }).flatten.toMap
+
   def rotate(n: Int): Tile = {
     Tile(for (p <- patches) yield p.rotate(n))
   }
