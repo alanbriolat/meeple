@@ -74,6 +74,15 @@ class Board extends Publisher {
     !(_tiles contains p) && checkAdjacent(t, p)
   }
 
+  def allValid(t: Tile): Map[(Int, Int), Set[Int]] = {
+    val (minX, maxX, minY, maxY) = extent
+    (for (x <- minX to maxX; y <- minY to maxY) yield {
+      val p = (x, y)
+      val rotations = (0 to 3).filter(i => valid(t.rotate(i), p)).toSet
+      if (rotations.size > 0) Some(p -> rotations) else None
+    }).flatten.toMap
+  }
+
   def checkAdjacent(t1: Tile, p: (Int, Int)): Boolean = {
     val tiles = adjacent4(p)
     tiles.length > 0 && (for ((d, t2) <- tiles) yield check(t1, t2, d)).forall(identity)

@@ -1,6 +1,6 @@
 package hexico.meeple.ui
 
-import hexico.meeple.game.{BoardChanged, Board}
+import hexico.meeple.game.{Tile, BoardChanged, Board}
 import scala.swing._
 import java.awt.Dimension
 import scala.swing.event.{Event, MouseClicked}
@@ -34,6 +34,13 @@ class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
     }
   }
 
+  var _nextTile: Option[Tile] = None
+  def nextTile: Option[Tile] = _nextTile
+  def nextTile_=(t: Option[Tile]) {
+    _nextTile = t
+    repaint()
+  }
+
   def pointToBoard(x: Int, y: Int): Option[(Int, Int)] = {
     if (x % (tileSize + 1) == 0 || y % (tileSize + 1) == 0) {
       None
@@ -44,13 +51,22 @@ class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
   }
 
   override def paintComponent(g: Graphics2D) {
-    val (minX, _, minY, _) = board.extent
+    val (minX, maxX, minY, maxY) = board.extent
 
     g.clearRect(0, 0, size.width, size.height)
 
     for (((tx, ty), t) <- board.tiles) {
       val (x, y) = (tx - minX, ty - minY)
       g.drawImage(renderer.render(t), null, x * tileSize + x + 1, y * tileSize + y + 1)
+    }
+
+    for (t <- _nextTile) {
+      for (((tx, ty), rotations) <- board.allValid(t)) {
+        val (x, y) = (tx - minX, ty - minY)
+        val tpp = new TilePreviewPanel(0)
+        val box = tpp.previewBox(tileSize, tileSize / 5, false, rotations)
+        g.drawImage(box, null, x * tileSize + x, y * tileSize + y)
+      }
     }
   }
 }

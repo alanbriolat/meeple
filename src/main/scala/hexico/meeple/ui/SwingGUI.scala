@@ -18,6 +18,7 @@ object SwingGUI extends SimpleSwingApplication {
   board.addTile(tileset.dequeue(), (0, 0))
   // Put the next tile into the preview panel
   previewPanel.tile = tileset.dequeue()
+  boardPanel.nextTile = Some(previewPanel.tile)
 
   // Listen for tile clicks and place tiles
   listenTo(boardPanel)
@@ -28,9 +29,11 @@ object SwingGUI extends SimpleSwingApplication {
         if (tileset.size == 0) {
           stateLabel.text = "Game over!"
           previewPanel.tile = null
+          boardPanel.nextTile = None
         } else {
           stateLabel.text = s"${tileset.size} tiles remaining"
           previewPanel.tile = tileset.dequeue()
+          boardPanel.nextTile = Some(previewPanel.tile)
         }
       }
     }
