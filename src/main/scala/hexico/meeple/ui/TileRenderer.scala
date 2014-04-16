@@ -2,11 +2,11 @@ package hexico.meeple.ui
 
 import java.awt.image.BufferedImage
 import hexico.meeple.game._
-import hexico.meeple.game.Direction._
+import hexico.meeple.game.{Direction => D}
 import java.awt.{RenderingHints, BasicStroke, Color}
 
 
-class TileRenderer (val width: Int, val height: Int) {
+class TileRenderer (val tileSize: Int) {
   val COLOR_GRASS: Color = Color.GREEN
   val COLOR_CITY: Color = Color.GRAY
   val COLOR_ROAD: Color = Color.BLACK
@@ -14,32 +14,34 @@ class TileRenderer (val width: Int, val height: Int) {
     new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER)
   val COLOR_MONASTERY: Color = Color.RED
 
-  def directionToPixel(d: Direction, scale: Double = 1.0): (Int, Int) = {
+  val COLOR_PREVIEW: Color = Color.BLUE
+
+  def directionToPixel(d: D.Value, scale: Double = 1.0): (Int, Int) = {
     // Position of the edge relative to the (0.5, 0.5) centre of the tile
     val (edgeX, edgeY) = d match {
-      case NW => (-0.5, -0.5)
-      case N  => (0.0, -0.5)
-      case NE => (0.5, -0.5)
-      case E  => (0.5, 0.0)
-      case SE => (0.5, 0.5)
-      case S  => (0.0, 0.5)
-      case SW => (-0.5, 0.5)
-      case W  => (-0.5, 0.0)
+      case D.NW => (-0.5, -0.5)
+      case D.N  => (0.0, -0.5)
+      case D.NE => (0.5, -0.5)
+      case D.E  => (0.5, 0.0)
+      case D.SE => (0.5, 0.5)
+      case D.S  => (0.0, 0.5)
+      case D.SW => (-0.5, 0.5)
+      case D.W  => (-0.5, 0.0)
     }
     // Return pixel position within tile, applying scaling factor to distance from centre
     fractionToPixel(0.5 + edgeX * scale, 0.5 + edgeY * scale)
   }
 
-  def fractionToPixel(f: (Double, Double)): (Int, Int) = ((f._1 * width).toInt, (f._2 * height).toInt)
+  def fractionToPixel(f: (Double, Double)): (Int, Int) = ((f._1 * tileSize).toInt, (f._2 * tileSize).toInt)
 
   def render(t: Tile): BufferedImage = {
-    val i = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
+    val i = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_RGB)
     val g = i.createGraphics()
 
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
     g.setBackground(COLOR_GRASS)
-    g.clearRect(0, 0, width, height)
+    g.clearRect(0, 0, tileSize, tileSize)
 
     t.features.foreach { f =>
       f.feature match {
@@ -84,6 +86,41 @@ class TileRenderer (val width: Int, val height: Int) {
           val (spanX, spanY) = fractionToPixel(0.4, 0.4)
           g.fillRect(startX, startY, spanX, spanY)
         case _ => println("unhandled feature")
+      }
+    }
+
+    // Return BufferedImage
+    i
+  }
+
+  /**
+   * Render an outline box, for previewing moves.
+   *
+   * @param corners   Set of corners to render nubs on, 0=NW, 1=NE, 2=SE, 3=SW.
+   * @param selected  Should the nubs be filled?
+   * @return  Transparent image, 2px larger than a tile, with outline and nubs drawn.
+   */
+  def previewBox(corners: Set[Int], selected: Boolean = false): BufferedImage = {
+    val nubSize: Int = tileSize / 5
+    val i = new BufferedImage(tileSize + 2, tileSize + 2, BufferedImage.TYPE_INT_ARGB)
+    val g = i.createGraphics()
+
+    g.setBackground(new Color(0, 0, 0, 0))
+    g.clearRect(0, 0, tileSize + 2, tileSize + 2)
+    g.setColor(COLOR_PREVIEW)
+    g.drawRect(0, 0, tileSize + 1, tileSize + 1)
+
+    for (corner <- corners) {
+      val (x, y) = corner match {
+        case 0 => (0, 0)
+        case 1 => (tileSize - nubSize + 1, 0)
+        case 2 => (tileSize - nubSize + 1, tileSize - nubSize + 1)
+        case 3 => (0, tileSize - nubSize + 1)
+      }
+      if (selected) {
+        g.fillRect(x, y, nubSize, nubSize)
+      } else {
+        g.drawRect(x, y, nubSize, nubSize)
       }
     }
 

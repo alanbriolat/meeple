@@ -8,7 +8,7 @@ import scala.swing.event.{Event, MouseClicked}
 case class TileClicked(x: Int, y: Int) extends Event
 
 class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
-  val renderer = new TileRenderer(tileSize, tileSize)
+  val renderer = new TileRenderer(tileSize)
 
   listenTo(board)
   reactions += {
@@ -51,7 +51,7 @@ class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
   }
 
   override def paintComponent(g: Graphics2D) {
-    val (minX, maxX, minY, maxY) = board.extent
+    val (minX, _, minY, _) = board.extent
 
     g.clearRect(0, 0, size.width, size.height)
 
@@ -63,8 +63,7 @@ class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
     for (t <- _nextTile) {
       for (((tx, ty), rotations) <- board.allValid(t)) {
         val (x, y) = (tx - minX, ty - minY)
-        val tpp = new TilePreviewPanel(0)
-        val box = tpp.previewBox(tileSize, tileSize / 5, false, rotations)
+        val box = renderer.previewBox(rotations)
         g.drawImage(box, null, x * tileSize + x, y * tileSize + y)
       }
     }

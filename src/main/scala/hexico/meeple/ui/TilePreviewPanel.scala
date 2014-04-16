@@ -1,14 +1,14 @@
 package hexico.meeple.ui
 
 import scala.swing._
-import java.awt.{Color, Dimension}
+import java.awt.Dimension
 import java.awt.image.BufferedImage
-import hexico.meeple.game.{Direction => D, Tile}
+import hexico.meeple.game.Tile
 import scala.swing.event.MouseClicked
 
 class TilePreviewPanel (val tileSize: Int) extends Panel {
   val nubSize: Int = tileSize / 5
-  val renderer = new TileRenderer(tileSize, tileSize)
+  val renderer = new TileRenderer(tileSize)
   val (width, height) = (tileSize * 2 + 3, tileSize * 2 + 3)
   preferredSize = new Dimension(width, height)
   minimumSize = preferredSize
@@ -67,38 +67,6 @@ class TilePreviewPanel (val tileSize: Int) extends Panel {
     repaint()
   }
 
-  def previewBox(tileSize: Int, nubSize: Int, selected: Boolean,
-                 corners: Set[Int]): BufferedImage = {
-    val i = new BufferedImage(tileSize + 2, tileSize + 2, BufferedImage.TYPE_INT_ARGB)
-    val g = i.createGraphics()
-
-    g.setBackground(new Color(0, 0, 0, 0))
-    g.clearRect(0, 0, tileSize + 2, tileSize + 2)
-    g.setColor(Color.BLUE)
-    g.drawRect(0, 0, tileSize + 1, tileSize + 1)
-
-    for (corner <- corners) {
-      val (x, y) = corner match {
-        case 0 => (0, 0)
-        case 1 => (tileSize - nubSize + 1, 0)
-        case 2 => (tileSize - nubSize + 1, tileSize - nubSize + 1)
-        case 3=> (0, tileSize - nubSize + 1)
-      }
-      if (selected) {
-        g.fillRect(x, y, nubSize, nubSize)
-      } else {
-        g.drawRect(x, y, nubSize, nubSize)
-      }
-    }
-
-    i
-  }
-
-  def previewBox(tileSize: Int, nubSize: Int, selected: Boolean,
-                 corner: Int): BufferedImage = {
-    previewBox(tileSize, nubSize, selected, Set(corner))
-  }
-
   override def paintComponent(g: Graphics2D) {
     g.clearRect(0, 0, size.width, size.height)
     if (rendered != null) {
@@ -110,7 +78,7 @@ class TilePreviewPanel (val tileSize: Int) extends Panel {
     // Draw overlay boxes
     for (i <- 0 to 3) {
       val selected = selectedRotation == Some(i)
-      val box = previewBox(tileSize, nubSize, selected, i)
+      val box = renderer.previewBox(Set(i), selected)
       val (x, y) = locations(i)
       g.drawImage(box, null, x - 1, y - 1)
     }
