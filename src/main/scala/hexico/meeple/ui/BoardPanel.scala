@@ -4,11 +4,14 @@ import hexico.meeple.game.{Tile, BoardChanged, Board}
 import scala.swing._
 import java.awt.Dimension
 import scala.swing.event.{Event, MouseClicked}
+import scala.collection.mutable
+import java.awt.image.BufferedImage
 
 case class TileClicked(x: Int, y: Int) extends Event
 
 class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
   val renderer = new TileRenderer(tileSize)
+  val tileCache: mutable.Map[(Int, Int), BufferedImage] = mutable.Map()
 
   listenTo(board)
   reactions += {
@@ -55,9 +58,12 @@ class BoardPanel (val board: Board, val tileSize: Int) extends Panel {
 
     g.clearRect(0, 0, size.width, size.height)
 
-    for (((tx, ty), t) <- board.tiles) {
+    for ((p@(tx, ty), t) <- board.tiles) {
+      if (!tileCache.contains(p)) {
+        tileCache(p) = renderer.render(t)
+      }
       val (x, y) = (tx - minX, ty - minY)
-      g.drawImage(renderer.render(t), null, x * tileSize + x + 1, y * tileSize + y + 1)
+      g.drawImage(tileCache(p), null, x * tileSize + x + 1, y * tileSize + y + 1)
     }
 
     for (t <- _nextTile) {
