@@ -10,6 +10,7 @@ import scala.swing.Graphics2D
 class TileRenderer (val tileSize: Int) {
   val COLOR_GRASS: Color = Color.GREEN
   val COLOR_CITY: Color = Color.GRAY
+  val COLOR_SHIELD: Color = Color.DARK_GRAY
   val COLOR_ROAD: Color = Color.BLACK
   val STROKE_ROAD: BasicStroke =
     new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER)
@@ -70,6 +71,16 @@ class TileRenderer (val tileSize: Int) {
     g.fillPolygon(xs.toArray, ys.toArray, xs.length)
   }
 
+  def drawShield(g: Graphics2D, points: List[D.Value]) {
+    val (cityXs, cityYs) = points.map(directionToPoint(_).toPair).unzip
+    val mean = Point(cityXs.sum / cityXs.length, cityYs.sum / cityYs.length)
+    val vertices = List(Point(-0.2, -0.2), Point(-0.1, -0.15), Point(0.0, -0.2),
+                        Point(0.1, -0.15), Point(0.2, -0.2), Point(0.2, 0.05),
+                        Point(0.0, 0.2), Point(-0.2, 0.05)).map(_ + mean)
+    val (xs, ys) = vertices.map(pointToPixel(_).toPair).unzip
+    g.fillPolygon(xs.toArray, ys.toArray, xs.length)
+  }
+
   def drawMonastery(g: Graphics2D) {
     val start = pointToPixel(Point(-0.4, -0.4))
     val end = pointToPixel(Point(0.4, 0.4))
@@ -94,6 +105,11 @@ class TileRenderer (val tileSize: Int) {
         case c: City =>
           g.setColor(COLOR_CITY)
           drawCity(g, f.points.toList)
+          f.feature.contains.foreach {
+            case Shield =>
+              g.setColor(COLOR_SHIELD)
+              drawShield(g, f.points.toList)
+          }
         case Monastery =>
           g.setColor(COLOR_MONASTERY)
           drawMonastery(g)
