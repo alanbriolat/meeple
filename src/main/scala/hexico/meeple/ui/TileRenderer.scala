@@ -17,37 +17,35 @@ class TileRenderer (val tileSize: Int) {
 
   val COLOR_PREVIEW: Color = Color.BLUE
 
-  def directionToPixel(d: D.Value, scale: Double = 1.0): (Int, Int) = {
-    // Position of the edge relative to the (0.5, 0.5) centre of the tile
-    val (edgeX, edgeY) = d match {
-      case D.NW => (-0.5, -0.5)
-      case D.N  => (0.0, -0.5)
-      case D.NE => (0.5, -0.5)
-      case D.E  => (0.5, 0.0)
-      case D.SE => (0.5, 0.5)
-      case D.S  => (0.0, 0.5)
-      case D.SW => (-0.5, 0.5)
-      case D.W  => (-0.5, 0.0)
-    }
-    // Return pixel position within tile, applying scaling factor to distance from centre
-    fractionToPixel(0.5 + edgeX * scale, 0.5 + edgeY * scale)
+  def directionToPoint(d: D.Value): Point[Double] = d match {
+    case D.NW => Point(-1, -1)
+    case D.N  => Point(0, -1)
+    case D.NE => Point(1, -1)
+    case D.E  => Point(1, 0)
+    case D.SE => Point(1, 1)
+    case D.S  => Point(0, 1)
+    case D.SW => Point(-1, 1)
+    case D.W  => Point(-1, 0)
   }
 
-  def fractionToPixel(f: (Double, Double)): (Int, Int) = ((f._1 * tileSize).toInt, (f._2 * tileSize).toInt)
+  def pointToPixel(p: Point[Double]): Point[Int] = {
+    Point((((p.x + 1) / 2) * tileSize).toInt,
+          (((p.y + 1) / 2) * tileSize).toInt)
+  }
 
   def drawRoad(g: Graphics2D, points: List[D.Value]) {
     g.setStroke(STROKE_ROAD)
     val vertices = points match {
       case a::Nil =>
-        List(directionToPixel(a), directionToPixel(a, 0.2))
+        List(directionToPoint(a), directionToPoint(a) * 0.2)
       case a::b::Nil =>
-        List(directionToPixel(a), directionToPixel(a, 0.5),
-             directionToPixel(b, 0.5), directionToPixel(b))
+        List(directionToPoint(a), directionToPoint(a) * 0.5,
+             directionToPoint(b) * 0.5, directionToPoint(b))
       case _ =>
         println("impossible road")
         List()
     }
-    val (xs, ys) = vertices.unzip
+    val (xs, ys) = vertices.map(pointToPixel(_).toPair).unzip
     g.drawPolyline(xs.toArray, ys.toArray, xs.length)
   }
 
@@ -59,23 +57,24 @@ class TileRenderer (val tileSize: Int) {
     val vertices = (sorted.last :: sorted).sliding(2).flatMap { case List(a, b) =>
       b - a match {
         // Adjacent points, draw directly to the point
-        case 1 => List(directionToPixel(b))
+        case 1 => List(directionToPoint(b))
         // Adjacent corners, curve away from the edge
-        case 2 => List(directionToPixel(a, 0.5), directionToPixel(b, 0.5), directionToPixel(b))
+        case 2 => List(directionToPoint(a) * 0.5, directionToPoint(b) * 0.5, directionToPoint(b))
         // Opposite corners, curve away from the centre
-        case 4 => List(directionToPixel(a + 6, 0.2), directionToPixel(b))
+        case 4 => List(directionToPoint(a + 6) * 0.2, directionToPoint(b))
         // Adjacent corners the "long way round", edge city special case
-        case 6 => List(directionToPixel(a - 1, 0.6), directionToPixel(b))
+        case 6 => List(directionToPoint(a - 1) * 0.6, directionToPoint(b))
       }
     }
-    val (xs, ys) = vertices.toStream.unzip
+    val (xs, ys) = vertices.toStream.map(pointToPixel(_).toPair).unzip
     g.fillPolygon(xs.toArray, ys.toArray, xs.length)
   }
 
   def drawMonastery(g: Graphics2D) {
-    val (startX, startY) = fractionToPixel(0.3, 0.3)
-    val (spanX, spanY) = fractionToPixel(0.4, 0.4)
-    g.fillRect(startX, startY, spanX, spanY)
+    val start = pointToPixel(Point(-0.4, -0.4))
+    val end = pointToPixel(Point(0.4, 0.4))
+    val span = end - start
+    g.fillRect(start.x, start.y, span.x, span.y)
   }
 
   def render(t: Tile): BufferedImage = {
