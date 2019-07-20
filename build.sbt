@@ -2,8 +2,8 @@ name := "meeple"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.13.0"
 
-libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
